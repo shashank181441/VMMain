@@ -2,36 +2,38 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 const SALT_ROUNDS = 10;
 
-const vendingMachineSchema = new mongoose.Schema({
+const vendingMachineSchema = new mongoose.Schema(
+  {
     location: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     status: {
-        type: String,
-        default: 'active',
+      type: Boolean,
+      default: true,
     },
     last_maintenance: {
-        type: Date,
+      type: Date,
     },
     maintenance_details: [
-        {
-            maintenance_date: {
-                type: Date,
-                default: Date.now,
-            },
-            description: {
-                type: String,
-            },
-            performed_by: {
-                type: String, // Storing technician details without user relationship
-            },
+      {
+        maintenance_date: {
+          type: Date,
+          default: Date.now,
         },
+        description: {
+          type: String,
+        },
+        performed_by: {
+          type: String, // Storing technician details without user relationship
+        },
+      },
     ],
-    user: {  // Owner of the vending machine
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+    user: {
+      // Owner of the vending machine
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
 
     // merchantDetails: {
@@ -41,17 +43,19 @@ const vendingMachineSchema = new mongoose.Schema({
     //     username: { type: String, required: true },
     //     password: { type: String, required: true },
     // },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
 // Middleware to handle cascading delete of related products when a vending machine is removed
-vendingMachineSchema.pre('remove', async function (next) {
-    try {
-        // 'this' refers to the vending machine being removed
-        await Product.deleteMany({ machine: this._id });
-        next();
-    } catch (err) {
-        next(err);
-    }
+vendingMachineSchema.pre("remove", async function (next) {
+  try {
+    // 'this' refers to the vending machine being removed
+    await Product.deleteMany({ machine: this._id });
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
 // Middleware to encrypt merchantDetails fields if they've been modified
@@ -90,4 +94,7 @@ vendingMachineSchema.pre('remove', async function (next) {
 //     next();
 // });
 
-export const VendingMachine = mongoose.model('VendingMachine', vendingMachineSchema);
+export const VendingMachine = mongoose.model(
+  "VendingMachine",
+  vendingMachineSchema
+);
